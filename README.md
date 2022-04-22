@@ -1,11 +1,14 @@
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://korbinian90.github.io/CLEARSWI.jl/dev)
 [![Build Status](https://github.com/korbinian90/CLEARSWI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CLEARSWI.jl/actions)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/korbinian90/CLEARSWI.jl?svg=true)](https://ci.appveyor.com/project/korbinian90/CLEARSWI-jl)
 [![Codecov](https://codecov.io/gh/korbinian90/CLEARSWI.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/korbinian90/CLEARSWI.jl)
 
 # Susceptibility Weighted Imaging (CLEAR-SWI)
 Published as [CLEAR-SWI](https://doi.org/10.1016/j.neuroimage.2021.118175). It provides magnetic resonance images with improved vein and iron contrast by weighting a combined magnitude image with a preprocessed phase image. This package has the additional capability of multi-echo SWI, intensity correction, contrast enhancement and improved phase processing. The reason for the development of this package was to solve artefacts at ultra-high field strength (7T), however, it also drastically improves the SWI quality at lower field strength.
 
-## Getting Started
+## Download standalone executables
+https://github.com/korbinian90/CompileMRI.jl/releases
+
+## Getting Started (julia version)
 
 ### Prerequisites
 A Julia installation ≥ 1.3 ([Official Julia Webpage](https://julialang.org/downloads/))
@@ -16,7 +19,7 @@ Single-echo or multi-echo Magnitude and Phase images in NIfTI fileformat (4D ima
 Run the following commands in Julia (either interactively in the REPL or as a script)
 
 ```julia
-using Pkg; Pkg.add(PackageSpec(url="https://github.com/korbinian90/CLEARSWI.jl"))
+import Pkg; Pkg.add(Pkg.PackageSpec(url="https://github.com/korbinian90/CLEARSWI.jl"))
 Pkg.add("FFTW") # This is required when using laplacian unwrapping
 ```
 
@@ -24,15 +27,18 @@ Pkg.add("FFTW") # This is required when using laplacian unwrapping
 To update CLEARSWI to the newest version run
 
 ```julia
-using Pkg; Pkg.update("CLEARSWI")
+import Pkg; Pkg.update("CLEARSWI")
 ```
 
 and **restart Julia**.
 
+### Function Reference
+https://korbinian90.github.io/CLEARSWI.jl/dev
+
 ### Usage
 This is a simple multi-echo case without changing default behavior
 ```julia
-using CLEARSWI
+using CLEARSWI, FFTW
 
 TEs = [4,8,12] # change this to the Echo Time of your sequence. For multi-echoes, set a list of TE values, else set a list with a single TE value.
 nifti_folder = CLEARSWI.dir("test","testData","small") # replace with path to your folder e.g. nifti_folder="/data/clearswi"
