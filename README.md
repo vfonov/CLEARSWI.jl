@@ -2,6 +2,8 @@
 [![Build Status](https://github.com/korbinian90/CLEARSWI.jl/workflows/CI/badge.svg)](https://github.com/korbinian90/CLEARSWI.jl/actions)
 [![Codecov](https://codecov.io/gh/korbinian90/CLEARSWI.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/korbinian90/CLEARSWI.jl)
 
+![test_clear_swi_github](https://user-images.githubusercontent.com/1307522/194285019-60e0e0a3-1bf5-4563-86bd-4201de2be08b.png)
+
 # Susceptibility Weighted Imaging (CLEAR-SWI)
 Published as [CLEAR-SWI](https://doi.org/10.1016/j.neuroimage.2021.118175). It provides magnetic resonance images with improved vein and iron contrast by weighting a combined magnitude image with a preprocessed phase image. This package has the additional capability of multi-echo SWI, intensity correction, contrast enhancement and improved phase processing. The reason for the development of this package was to solve artefacts at ultra-high field strength (7T), however, it also drastically improves the SWI quality at lower field strength.
 
@@ -60,7 +62,7 @@ savenii(mip, "<outputpath>/mip.nii"; header=mag.header)
 To apply custom options use the following keyword syntax (example to apply 3D high-pass filtering for the phase with the given kernel size and deactivate softplus magnitude scaling):
 
 ```julia
-options = Options(phase_hp_σ=[10,10,5], mag_softplus=false)
+options = Options(phase_hp_sigma=[10,10,5], mag_softplus=false)
 swi = calculateSWI(data, options);
 ```
 
@@ -70,7 +72,7 @@ mag_combine=:SNR
 mag_sens=nothing
 mag_softplus=true
 phase_unwrap=:laplacian
-phase_hp_σ=[4,4,0]
+phase_hp_sigma=[4,4,0]
 phase_scaling_type=:tanh
 phase_scaling_strength=4
 writesteps=nothing
@@ -90,7 +92,7 @@ writesteps=nothing
 
 * `phase_unwrap` is either `:laplacian`, `:romeo`, or `:laplacianslice` (slicewise laplacian unwrapping)
 
-* The `phase_hp_σ` is used for high-pass filtering and is given in voxel for the [x,y,z]-dimension.  
+* The `phase_hp_sigma` is used for high-pass filtering and is given in voxel for the [x,y,z]-dimension.  
 
 * `phase_scaling_type` is the scaling function to create the phase mask and can be `:tanh` or `:negativetanh` for sigmoidal filtering, or `:positive`, `:negative`, and `:triangular` for traditional SWI application.
 
