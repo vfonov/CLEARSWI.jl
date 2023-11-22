@@ -31,6 +31,4 @@ file = "$tmp_folder/settings_swi.txt"
 rm(file)
 try rm(tmp_folder) catch end
 
-@test isdir(CLEARSWI.dir("test", "testData", "small"))
-
-printstyled("Tests Passed!"; color=:green)
+@test isdir(CLEARSWI.dir("test", "data", "small"))

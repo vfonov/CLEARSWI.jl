@@ -4,45 +4,60 @@
 
 ![test_clear_swi_github](https://user-images.githubusercontent.com/1307522/194285019-60e0e0a3-1bf5-4563-86bd-4201de2be08b.png)
 
+Apply CLEARSWI in the command line without Julia programming experience. This repository contains the CLEARSWI algorithm and a command line interface.
+
 # Susceptibility Weighted Imaging (CLEAR-SWI)
+
 Published as [CLEAR-SWI](https://doi.org/10.1016/j.neuroimage.2021.118175). It provides magnetic resonance images with improved vein and iron contrast by weighting a combined magnitude image with a preprocessed phase image. This package has the additional capability of multi-echo SWI, intensity correction, contrast enhancement and improved phase processing. The reason for the development of this package was to solve artefacts at ultra-high field strength (7T), however, it also drastically improves the SWI quality at lower field strength.
 
 ## Download standalone executables
-https://github.com/korbinian90/CompileMRI.jl/releases
 
-## Getting Started (julia version)
+https://github.com/korbinian90/CompileMRI.jl/releases  
+This package contains binaries with dependencies.  
+For usage help, run the command line program in `bin/clearswi` without arguments or see [below](https://github.com/korbinian90/CLEARSWI.jl#command-line-help).
+
+## Usage - command line via Julia
+
+Install Julia 1.9 or newer (https://julialang.org)  
+Copy the file `clearswi.jl` from this repository to a convenient location. An alias for `clearswi` as `julia <path-to-file>/clearswi.jl` might be useful.
+
+```bash
+    $ julia <path-to-file>/clearswi.jl -p phase.nii -m mag.nii -t [2.1,4.2,6.3] -o results
+```
+
+On the first run, the dependencies will be installed automatically.
+
+For an extended explanation of the command line interface see [below](https://github.com/korbinian90/CLEARSWI).
+
+## Usage - Julia
 
 ### Prerequisites
-A Julia installation ≥ 1.5 ([Official Julia Webpage](https://julialang.org/downloads/))
+
+A Julia installation ≥ 1.6 ([Official Julia Webpage](https://julialang.org/downloads/))
 
 Single-echo or multi-echo Magnitude and Phase images in NIfTI fileformat (4D images with echoes in the 4th dimension)
 
 ### Installing
+
 Run the following commands in Julia (either interactively in the REPL or as a script)
 
 ```julia
-import Pkg; Pkg.add(Pkg.PackageSpec(url="https://github.com/korbinian90/CLEARSWI.jl"))
+import Pkg; Pkg.add("CLEARSWI")
 ```
-
-### Updating
-To update CLEARSWI to the newest version run
-
-```julia
-import Pkg; Pkg.update("CLEARSWI")
-```
-
-and **restart Julia**.
 
 ### Function Reference
+
 https://korbinian90.github.io/CLEARSWI.jl/dev
 
 ### Usage
+
 This is a simple multi-echo case without changing default behavior
+
 ```julia
 using CLEARSWI
 
 TEs = [4,8,12] # change this to the Echo Time of your sequence. For multi-echoes, set a list of TE values, else set a list with a single TE value.
-nifti_folder = CLEARSWI.dir("test","testData","small") # replace with path to your folder e.g. nifti_folder="/data/clearswi"
+nifti_folder = CLEARSWI.dir("test","data","small") # replace with path to your folder e.g. nifti_folder="/data/clearswi"
 magfile = joinpath(nifti_folder, "Mag.nii") # Path to the magnitude image in nifti format, must be .nii or .hdr
 phasefile = joinpath(nifti_folder, "Phase.nii") # Path to the phase image
 
@@ -59,6 +74,7 @@ savenii(mip, "<outputpath>/mip.nii"; header=mag.header)
 ```
 
 ### Available Options
+
 To apply custom options use the following keyword syntax (example to apply 3D high-pass filtering for the phase with the given kernel size and deactivate softplus magnitude scaling):
 
 ```julia
@@ -67,6 +83,7 @@ swi = calculateSWI(data, options);
 ```
 
 All the possible options with the default values are
+
 ```julia
 mag_combine=:SNR
 mag_sens=nothing
@@ -77,14 +94,15 @@ phase_scaling_type=:tanh
 phase_scaling_strength=4
 writesteps=nothing
 ```
+
 * `mag_combine` selects the echo combination for the magnitude. Options are 
-    * `:SNR`
-    * `:average`
-    * `:last` to select the last echo
-    * `(:CNR => (:gm, :wm))` to optimize the contrast between two selected tissues with the possible tissues classes to select in `src\tissue.jl`, currently only working for 7T
-    * `(:echo => 3)` to select the 3rd echo 
-    * `(:closest => 15.3)` to select the echo that is closest to 15.3 ms 
-    * `(:SE => 15.3)` to simulate the contrast that would be achieved using a corresponding single-echo scan with 15.3 ms echo time.
+  * `:SNR`
+  * `:average`
+  * `:last` to select the last echo
+  * `(:CNR => (:gm, :wm))` to optimize the contrast between two selected tissues with the possible tissues classes to select in `src\tissue.jl`, currently only working for 7T
+  * `(:echo => 3)` to select the 3rd echo 
+  * `(:closest => 15.3)` to select the echo that is closest to 15.3 ms 
+  * `(:SE => 15.3)` to simulate the contrast that would be achieved using a corresponding single-echo scan with 15.3 ms echo time.
 
 * If `mag_sens` is set to an array, it is used instead of CLEAR-SWI sensitivity estimation. This can also be set to `mag_sens=[1]` to use the constant sensitivity of 1 and effectively avoid sensitivity correction.
 
@@ -101,16 +119,20 @@ writesteps=nothing
 * Set `writesteps` to the path, where intermediate steps should be saved, e.g. `writesteps="/tmp/clearswi_steps"`. If set to `nothing`, intermediate steps won't be saved.
 
 ### Calculating T2* and B0 maps on multi-echo datasets
+
 T2* and B0 maps can be calculated using the package [MriResearchTools](https://github.com/korbinian90/MriResearchTools.jl):
 
-#### Installing:
+#### Installing
+
+B0 and R2*/T2* calculation requires the package `MriResearchTools`
 
 ```julia
 using Pkg
-Pkg.add(PackageSpec("MriResearchTools"))
+Pkg.add("MriResearchTools")
 ```
 
-#### Usage:
+#### Usage
+
 With the previously defined variables `phase`, `mag` and `TEs`
 
 ```julia
@@ -123,5 +145,82 @@ t2s = NumART2star(mag, TEs)
 r2s = r2s_from_t2s(t2s)
 ```
 
+## Command Line Help
+
+```plain
+$ .\bin\clearswi
+usage: <PROGRAM> [-m MAGNITUDE] [-p PHASE] [-o OUTPUT]
+                 [-t ECHO-TIMES [ECHO-TIMES...]] [--qsm]
+                 [--mag-combine MAG-COMBINE [MAG-COMBINE...]]
+                 [--mag-sensitivity-correction MAG-SENSITIVITY-CORRECTION]
+                 [--mag-softplus-scaling MAG-SOFTPLUS-SCALING]
+                 [--unwrapping-algorithm UNWRAPPING-ALGORITHM]
+                 [--filter-size FILTER-SIZE [FILTER-SIZE...]]
+                 [--phase-scaling-type PHASE-SCALING-TYPE]
+                 [--phase-scaling-strength PHASE-SCALING-STRENGTH]
+                 [-e ECHOES [ECHOES...]] [-N] [--no-phase-rescale]
+                 [--writesteps WRITESTEPS] [-v] [--version] [-h]
+
+3.6.4
+
+optional arguments:
+  -m, --magnitude MAGNITUDE
+                        The magnitude image (single or multi-echo)
+  -p, --phase PHASE     The phase image (single or multi-echo)
+  -o, --output OUTPUT   The output path or filename (default:
+                        "clearswi.nii")
+  -t, --echo-times ECHO-TIMES [ECHO-TIMES...]
+                        The echo times are required for multi-echo
+                        datasets specified in array or range syntax
+                        (eg. "[1.5,3.0]" or "3.5:3.5:14").
+  --qsm                 When activated uses TGV-QSM for phase weighting
+  --mag-combine MAG-COMBINE [MAG-COMBINE...]
+                        SNR | average | echo <n> | SE <te>. Magnitude
+                        combination algorithm. echo <n> selects a
+                        specific echo; SE <te> simulates a single echo
+                        scan of the given echo time. (default:
+                        ["SNR"])
+  --mag-sensitivity-correction MAG-SENSITIVITY-CORRECTION
+                        <filename> | on | off. Use the CLEAR-SWI
+                        sensitivity correction. Alternatively, a
+                        sensitivity map can be read from a file
+                        (default: "on")
+  --mag-softplus-scaling MAG-SOFTPLUS-SCALING
+                        on | off. Set softplus scaling of the
+                        magnitude (default: "on")
+  --unwrapping-algorithm UNWRAPPING-ALGORITHM
+                        laplacian | romeo | laplacianslice (default:
+                        "laplacian")
+  --filter-size FILTER-SIZE [FILTER-SIZE...]
+                        Size for the high-pass phase filter in voxels.
+                        Can be given as <x> <y> <z> or in array syntax
+                        (e.g. [2.2,3.1,0], which is effectively a 2D
+                        filter). (default: ["[4,4,0]"])
+  --phase-scaling-type PHASE-SCALING-TYPE
+                        tanh | negativetanh | positive | negative |
+                        triangular Select the type of phase scaling.
+                        positive or negative with a strength of 3-6 is
+                        used in standard SWI. (default: "tanh")
+  --phase-scaling-strength PHASE-SCALING-STRENGTH
+                        Sets the phase scaling strength. Corresponds
+                        to power values for positive, negative and
+                        triangular phase scaling type. (default: "4")
+  -e, --echoes ECHOES [ECHOES...]
+                        Load only the specified echoes from disk
+                        (default: [":"])
+  -N, --no-mmap         Deactivate memory mapping. Memory mapping
+                        might cause problems on network storage
+  --no-phase-rescale    Deactivate automatic rescaling of phase
+                        images. By default the input phase is rescaled
+                        to the range [-π;π].
+  --writesteps WRITESTEPS
+                        Set to the path of a folder, if intermediate
+                        steps should be saved.
+  -v, --verbose         verbose output messages
+  --version             show version information and exit
+  -h, --help            show this help message and exit
+```
+
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/korbinian90/CLEARSWI.jl/blob/master/LICENSE) for details
