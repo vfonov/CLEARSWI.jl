@@ -19,8 +19,7 @@ function sensitivity_correction(combined_mag, data, options)
     return combined_mag ./ sensitivity
 end
 
-#getpixdim(data) = data.header.pixdim[2:(1+ndims(data.mag))]
-getpixdim(data) =  data.header.step
+getpixdim(data::Data) = data.header.pixdim[2:(1+ndims(data.mag))]
 
 function combine_echoes_swi(mag, TEs, type)
     if ndims(mag) == 3 # only one echo
